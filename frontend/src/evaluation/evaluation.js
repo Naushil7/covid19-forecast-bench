@@ -136,7 +136,7 @@ class Evaluation extends Component {
       mainGraphData: {},
       rankingTableData: [],
       metrics: "mae",
-      metricsList: ["mae", "mape"],
+      metricsList: ["mae", "mape", 'forecast'],
       forecastType: "state_death_eval",
       timeSpan: "avg",
       maxDateRange: [],
@@ -770,6 +770,7 @@ class Evaluation extends Component {
                     >
                       <Option value="mae">MAE</Option>
                       <Option value="mape">MAPE</Option>
+                      <Option value="forecast">FORECAST</Option>
                     </Select>
                   </Form.Item>
 
