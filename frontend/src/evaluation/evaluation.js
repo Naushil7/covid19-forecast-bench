@@ -215,11 +215,13 @@ class Evaluation extends Component {
 
     // Update the date range by reading the column names.
     for (const date in result.data[0]) {
+      // console.log(result.data[0])
       if (!maxDateRange[1]) {
         maxDateRange[1] = date;
       }
       if (date > maxDateRange[1]) {
         maxDateRange[1] = date;
+        // console.log("max_Date"+maxDateRange[1])
       }
     }
 
