@@ -19,7 +19,8 @@ class Job(object):
         def load_states(self):
             """ Return a list of states. """
             states = []
-            with open("./us_states_list.txt") as f:
+            # print(os.getcwd(), "os")
+            with open(r"scripts\format-script\us_states_list.txt") as f:
                 for line in f:
                     states.append(line.strip())
 
@@ -63,15 +64,31 @@ class Job(object):
 
 
     def set_source(self, source):
+        # print(source)
         self.source = source
 
 
     def fetch_truth_cumulative_cases(self):
         dataset = {}
         URL = "https://raw.githubusercontent.com/reichlab/covid19-forecast-hub/master/data-truth/truth-Cumulative%20Cases.csv"
-
-        f = io.StringIO(urllib.request.urlopen(URL).read().decode('utf-8'))
-        reader = csv.reader(f)
+        # f = io.StringIO(urllib.request.urlopen(URL).read().decode('utf-8'))
+        response = requests.get(URL)
+        if response.status_code == 200:
+            content = response.text
+            # Detect Git LFS pointer
+            if "git-lfs.github.com" in content:
+                print("The file is a Git LFS pointer. Fetching the actual data...")
+                # Extract the raw URL using the API (modify as needed)
+                api_url = "https://github.com/reichlab/covid19-forecast-hub/raw/master/data-truth/truth-Cumulative%20Cases.csv"
+                response = requests.get(api_url)
+                if response.status_code != 200:
+                    raise Exception("Failed to fetch the raw CSV file. Check URL or permissions.")
+            else:
+                print("The file is not managed by Git LFS. Proceeding with the raw data...")
+        
+        # Convert the fetched data to a CSV reader
+        csv_file = io.StringIO(response.text)
+        reader = csv.reader(csv_file)
         header = next(reader, None)
 
         location_col = -1
@@ -90,7 +107,8 @@ class Job(object):
             # Skip US' country level report.
             if row[location_col] == "US" or row[location_col] == "NA":
                 continue
-
+            
+            print(row[location_col])
             state_id = int(row[location_col])
 
             if state_id not in self.costant.STATE_MAPPING:
@@ -220,5 +238,5 @@ if __name__ == "__main__":
     job = Job()
     job.set_input_directory("./input/")
     job.set_output_directory("./output/")
-    job.set_source("state_case")
+    job.set_source(r"scripts\format-script\state_case")
     job.run()
